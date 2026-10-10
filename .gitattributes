@@ -1,0 +1,23 @@
+# Normalize line endings: store LF in the repo and check out LF everywhere.
+# This prevents CRLF from being reintroduced on Windows (core.autocrlf) and
+# keeps the YAML/CI files valid for the VS Code language server.
+* text=auto eol=lf
+
+# Explicit LF for CI workflow and config files.
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+
+# Always LF for shell scripts regardless of platform.
+*.sh text eol=lf
+
+# Treat common binaries as binary (never touch line endings).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
