@@ -1,0 +1,6 @@
+name = "llm-hallucination-checker-edge-api"
+main = "index.js"
+compatibility_date = "2026-10-10"
+
+# The worker is pure JS with no dependencies, so the default runtime is enough.
+# Deploy from this directory with:  wrangler deploy

@@ -98,6 +98,47 @@ pytest --cov=core --cov-report=term-missing
 Continuous integration runs the full suite on Python 3.10, 3.11, and 3.12 for
 every push and pull request to `main`.
 
+## Web diagnostic widget
+
+Want to try it without installing anything? This repo ships a lightweight,
+single-page widget plus a Cloudflare Worker edge API that both run the **same
+deterministic heuristics** as the Python core — a trace scores identically in
+CI, at the edge, and in the browser.
+
+```
+public/index.html   # Single-page widget (paste a trace, see instant scores)
+worker/index.js     # Cloudflare Worker edge API (dependency-free port)
+worker/wrangler.toml
+```
+
+- **Local mode (no backend):** open `public/index.html`, tick *"Score locally
+  (no network)"*, paste a trace, and the identical 0.6 / 0.5 / 0.2 heuristics
+  run entirely in your browser — the trace never leaves the page.
+- **Edge mode:** deploy the worker and paste its URL into the widget.
+
+### Deploy the edge API
+
+```bash
+cd worker
+npm install -g wrangler   # if you don't have it yet
+wrangler login
+wrangler deploy          # prints your *.workers.dev URL
+```
+
+The worker accepts a `POST` of trace JSON (a list of spans, a `{"spans":[...]}`
+object, or a single span) and returns an aggregate `hallucination_risk_score`
+(the mean across spans, clamped to `1.0`) plus a per-span `results` breakdown.
+
+### Deploy the widget to Cloudflare Pages
+
+```bash
+# from the repo root, publishing the public/ directory
+npx wrangler pages deploy public
+```
+
+Paste your deployed worker URL into the widget's *Edge API endpoint* field (it's
+remembered in `localStorage`), or just use local mode.
+
 ## License
 
 Distributed under the MIT License. See [LICENSE](LICENSE) for details.

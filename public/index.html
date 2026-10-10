@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LLM Hallucination Checker — Edge Diagnostic</title>
+  <meta name="description" content="Paste an anonymized OpenTelemetry GenAI trace and get an instant, deterministic hallucination risk score." />
+  <style>
+    :root{--bg:#0b0f14;--panel:#121821;--panel2:#0e141c;--border:#223041;--text:#e6edf3;--muted:#8b98a5;--accent:#4f8cff;--low:#3fb950;--med:#d29922;--high:#f85149;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(1200px 600px at 50% -10%,#14202e 0%,var(--bg) 60%);color:var(--text);min-height:100vh;line-height:1.5;}
+    .wrap{max-width:1080px;margin:0 auto;padding:32px 20px 64px;}
+    header{text-align:center;margin-bottom:28px;}
+    h1{font-size:1.7rem;margin:0 0 8px;letter-spacing:-0.02em;}
+    h1 .dot{color:var(--accent);}
+    .sub{color:var(--muted);margin:0;font-size:0.98rem;}
+    .badges{margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+    .pill{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);border:1px solid var(--border);background:var(--panel2);padding:4px 10px;border-radius:999px;}
+    .pill.ok{color:var(--low);border-color:rgba(63,185,80,0.4);}
+    .config{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:0.85rem;}
+    .config-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .config label{color:var(--muted);}
+    .config input[type="text"]{flex:1 1 320px;min-width:220px;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:0.8rem;}
+    .config input[type="checkbox"]{accent-color:var(--accent);}
+    .hint{color:var(--muted);font-size:0.78rem;margin-top:8px;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+    @media(max-width:820px){.grid{grid-template-columns:1fr;}}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;}
+    .card h2{font-size:0.8rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin:0 0 12px;}
+    textarea{width:100%;min-height:320px;resize:vertical;background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:var(--mono);font-size:0.82rem;}
+    textarea:focus{outline:none;border-color:var(--accent);}
+    .controls{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+    button{cursor:pointer;border:1px solid var(--border);background:var(--panel2);color:var(--text);padding:9px 16px;border-radius:8px;font-size:0.88rem;font-weight:600;transition:0.15s;}
+    button:hover{border-color:var(--accent);}
+    button.primary{background:var(--accent);border-color:var(--accent);color:#06122a;}
+    button.primary:hover{filter:brightness(1.08);}
+    button:disabled{opacity:0.55;cursor:not-allowed;}
+    .error{display:none;margin-top:12px;background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.4);color:#ffb4ae;padding:10px 12px;border-radius:8px;font-size:0.84rem;white-space:pre-wrap;}
+    .empty{color:var(--muted);text-align:center;padding:48px 12px;font-size:0.9rem;}
+    .results{display:none;}
+    .score-hero{display:flex;align-items:center;gap:18px;}
+    .gauge{position:relative;width:108px;height:108px;flex:0 0 auto;}
+    .gauge svg{transform:rotate(-90deg);}
+    .gauge .val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .gauge .num{font-size:1.6rem;font-weight:700;}
+    .gauge .lbl{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
+    .verdict .level{font-size:1.25rem;font-weight:700;}
+    .verdict .desc{color:var(--muted);font-size:0.84rem;}
+    .stats{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+    .stat{flex:1 1 90px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+    .stat .n{font-size:1.15rem;font-weight:700;}
+    .stat .k{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);}
+    .span{border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px;background:var(--panel2);}
+    .span .head{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+    .span .model{font-family:var(--mono);font-size:0.82rem;}
+    .chip{font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:999px;}
+    .chip.low{color:var(--low);background:rgba(63,185,80,0.12);}
+    .chip.med{color:var(--med);background:rgba(210,153,34,0.14);}
+    .chip.high{color:var(--high);background:rgba(248,81,73,0.14);}
+    .span .meta{color:var(--muted);font-size:0.75rem;margin-top:4px;font-family:var(--mono);}
+    .span ul{margin:8px 0 0;padding-left:18px;}
+    .span li{font-size:0.8rem;color:#ffcf9e;}
+    .span .clean{color:var(--low);font-size:0.8rem;margin-top:6px;}
+    footer{text-align:center;color:var(--muted);font-size:0.78rem;margin-top:28px;}
+    footer a{color:var(--accent);text-decoration:none;}
+    .src{font-size:0.72rem;color:var(--muted);margin-top:10px;}
+    .src b{color:var(--text);font-weight:600;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>LLM Hallucination Checker<span class="dot">.</span></h1>
+      <p class="sub">Paste an anonymized OpenTelemetry GenAI trace and get an instant, deterministic risk score — no LLM judge, no data retention.</p>
+      <div class="badges"><span class="pill">OTel GenAI</span><span class="pill">Zero cold-start</span><span class="pill ok">Runs in-browser</span></div>
+    </header>
+
+    <div class="config">
+      <div class="config-row">
+        <label for="apiUrl">Edge API endpoint</label>
+        <input type="text" id="apiUrl" placeholder="https://your-worker.your-subdomain.workers.dev" spellcheck="false" />
+        <label><input type="checkbox" id="localMode" /> Score locally (no network)</label>
+      </div>
+      <div class="hint">Point this at your deployed Cloudflare Worker, or enable <b>local mode</b> to run the identical heuristics entirely in your browser — the trace never leaves this page.</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Trace input</h2>
+        <textarea id="trace" spellcheck="false" placeholder='Paste a trace — a list of spans, {"spans":[...]}, or a single span.'></textarea>
+        <div class="controls">
+          <button class="primary" id="analyze">Analyze trace</button>
+          <button id="sample">Load sample</button>
+          <button id="clear">Clear</button>
+        </div>
+        <div class="error" id="error"></div>
+      </div>
+
+      <div class="card">
+        <h2>Diagnostic report</h2>
+        <div class="empty" id="empty">Your results will appear here. Load the sample or paste a trace, then hit <b>Analyze</b>.</div>
+        <div class="results" id="results">
+          <div class="score-hero">
+            <div class="gauge">
+              <svg width="108" height="108" viewBox="0 0 108 108">
+                <circle cx="54" cy="54" r="46" fill="none" stroke="#223041" stroke-width="10" />
+                <circle id="gaugeArc" cx="54" cy="54" r="46" fill="none" stroke="var(--low)" stroke-width="10" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="289" />
+              </svg>
+              <div class="val"><span class="num" id="scoreNum">0%</span><span class="lbl">risk</span></div>
+            </div>
+            <div class="verdict"><div class="level" id="verdictLevel">—</div><div class="desc" id="verdictDesc"></div></div>
+          </div>
+          <div class="stats">
+            <div class="stat"><div class="n" id="statSpans">0</div><div class="k">spans</div></div>
+            <div class="stat"><div class="n" id="statWarnings">0</div><div class="k">warnings</div></div>
+            <div class="stat"><div class="n" id="statWorst">0%</div><div class="k">worst span</div></div>
+          </div>
+          <div id="spanList"></div>
+          <div class="src">Scored by <b id="srcLabel">—</b> using the deterministic 0.6 / 0.5 / 0.2 heuristic weights.</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>Deterministic, offline heuristics — identical logic in CI, at the edge, and in this widget.<br />Read the <a href="https://github.com/CallmeKeefe/llm-hallucination-checker-edge" target="_blank" rel="noopener">source on GitHub</a>.</footer>
+  </div>
+  <script>
+"use strict";
+
+/* Heuristic weights + rules — kept identical to worker/index.js and
+   core/parser.py so a trace scores the same locally, at the edge, and in CI. */
+const WEIGHT_EMPTY_COMPLETION = 0.6;
+const WEIGHT_MISSING_CITATION = 0.5;
+const WEIGHT_UNKNOWN_MODEL = 0.2;
+const GROUNDING_CUES = ["according to", "as per", "per the", "cite"];
+const CITATION_MARKERS = ["[", "]"];
+const MODEL_KEYS = ["gen_ai.request.model", "gen_ai.system"];
+
+const $ = (id) => document.getElementById(id);
+const traceEl = $("trace"), apiUrlEl = $("apiUrl"), localEl = $("localMode");
+const errEl = $("error");
+
+/* Restore persisted preferences. */
+apiUrlEl.value = localStorage.getItem("hh_api") || "";
+localEl.checked = localStorage.getItem("hh_local") === "1";
+
+function coerceInt(v) { const n = parseInt(v, 10); return Number.isFinite(n) && n > 0 ? n : 0; }
+function resolveModel(a) {
+  for (const k of MODEL_KEYS) {
+    const c = a[k];
+    if (typeof c === "string" && c.trim()) return c.trim();
+  }
+  return "unknown-model";
+}
+function asString(v) { return typeof v === "string" ? v : String(v == null ? "" : v); }
+
+/* Faithful port of OTELTraceParser.parse_span — never throws. */
+function parseSpan(span) {
+  const raw = span && typeof span === "object" ? span.attributes : undefined;
+  const attrs = raw && typeof raw === "object" ? raw : {};
+  const model = resolveModel(attrs);
+  const input_tokens = coerceInt(attrs["gen_ai.usage.input_tokens"]);
+  const output_tokens = coerceInt(attrs["gen_ai.usage.output_tokens"]);
+  const prompt = asString(attrs["gen_ai.prompt"]);
+  const completion = asString(attrs["gen_ai.completion"]);
+  const warnings = [];
+  let risk = 0;
+  if (!completion.trim()) {
+    risk += WEIGHT_EMPTY_COMPLETION;
+    warnings.push("Empty completion detected in trace span.");
+  }
+  const lp = prompt.toLowerCase();
+  if (GROUNDING_CUES.some((c) => lp.includes(c)) && !CITATION_MARKERS.some((m) => completion.includes(m))) {
+    risk += WEIGHT_MISSING_CITATION;
+    warnings.push("Prompt requested grounding references, but no citation markers were found in the completion.");
+  }
+  if (model === "unknown-model") {
+    risk += WEIGHT_UNKNOWN_MODEL;
+    warnings.push("Model identifier missing from span attributes.");
+  }
+  return { model, input_tokens, output_tokens, hallucination_risk_score: Math.min(risk, 1.0), warnings };
+}
+function extractSpans(data) {
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === "object" && Array.isArray(data.spans)) return data.spans;
+  return [data];
+}
+function scoreLocal(data) {
+  const spans = extractSpans(data);
+  const results = spans.map(parseSpan);
+  const mean = results.length ? results.reduce((s, r) => s + r.hallucination_risk_score, 0) / results.length : 0;
+  return { success: true, spans_evaluated: spans.length, hallucination_risk_score: Math.min(mean, 1.0), results, warnings: results.flatMap((r) => r.warnings) };
+}
+function showError(msg) { errEl.textContent = msg; errEl.style.display = "block"; }
+function clearError() { errEl.style.display = "none"; }
+async function analyze() {
+  clearError();
+  localStorage.setItem("hh_api", apiUrlEl.value.trim());
+  localStorage.setItem("hh_local", localEl.checked ? "1" : "0");
+
+  let data;
+  try { data = JSON.parse(traceEl.value); }
+  catch (e) { showError("Invalid JSON: " + e.message); return; }
+
+  if (localEl.checked) {
+    render(scoreLocal(data), "in-browser scoring");
+    return;
+  }
+  const url = apiUrlEl.value.trim();
+  if (!url) { showError("Enter an Edge API endpoint, or enable “Score locally (no network)”."); return; }
+  try {
+    const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+    const result = await res.json();
+    if (!result.success) { showError("Edge API error: " + (result.error || res.status)); return; }
+    render(result, "Cloudflare Worker edge API");
+  } catch (e) { showError("Could not reach the Edge API (" + e.message + "). Enable local scoring to run offline."); }
+}
+
+function level(score) { return score >= 0.67 ? "high" : score >= 0.34 ? "med" : "low"; }
+function verdict(score) {
+  if (score >= 0.67) return ["High risk", "Multiple ungrounded or malformed signals detected. Review before shipping."];
+  if (score >= 0.34) return ["Elevated risk", "Some grounding or instrumentation gaps worth inspecting."];
+  return ["Low risk", "No hallucination heuristics triggered on this trace."];
+}
+
+function render(result, sourceLabel) {
+  $("empty").style.display = "none";
+  $("results").style.display = "block";
+  $("srcLabel").textContent = sourceLabel;
+
+  const score = Number(result.hallucination_risk_score) || 0;
+  const pct = Math.round(score * 100);
+  const lvl = level(score);
+  const color = lvl === "high" ? "var(--high)" : lvl === "med" ? "var(--med)" : "var(--low)";
+
+  $("scoreNum").textContent = pct + "%";
+  const arc = $("gaugeArc");
+  arc.setAttribute("stroke", color);
+  arc.style.strokeDashoffset = String(289 - Math.round(score * 289));
+
+  const [lv, desc] = verdict(score);
+  $("verdictLevel").textContent = lv;
+  $("verdictLevel").style.color = color;
+  $("verdictDesc").textContent = desc;
+
+  const spans = result.results || [];
+  $("statSpans").textContent = result.spans_evaluated != null ? result.spans_evaluated : spans.length;
+  $("statWarnings").textContent = (result.warnings || []).length;
+  const worst = spans.reduce((m, r) => Math.max(m, r.hallucination_risk_score || 0), 0);
+  $("statWorst").textContent = Math.round(worst * 100) + "%";
+
+  const list = $("spanList");
+  list.innerHTML = "";
+  spans.forEach((r, i) => {
+    const s = Number(r.hallucination_risk_score) || 0;
+    const chip = level(s);
+    const card = document.createElement("div");
+    card.className = "span";
+    const head = document.createElement("div");
+    head.className = "head";
+    const model = document.createElement("span");
+    model.className = "model";
+    model.textContent = "Span #" + (i + 1) + " · " + (r.model || "unknown-model");
+    const badge = document.createElement("span");
+    badge.className = "chip " + chip;
+    badge.textContent = Math.round(s * 100) + "%";
+    head.append(model, badge);
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = "in=" + (r.input_tokens || 0) + " tok · out=" + (r.output_tokens || 0) + " tok";
+    card.append(head, meta);
+    if (r.warnings && r.warnings.length) {
+      const ul = document.createElement("ul");
+      r.warnings.forEach((w) => { const li = document.createElement("li"); li.textContent = w; ul.append(li); });
+      card.append(ul);
+    } else {
+      const ok = document.createElement("div");
+      ok.className = "clean";
+      ok.textContent = "✓ Grounded — no heuristics triggered.";
+      card.append(ok);
+    }
+    list.append(card);
+  });
+}
+
+const SAMPLE = JSON.stringify([
+  { attributes: { "gen_ai.request.model": "gpt-4o", "gen_ai.usage.input_tokens": 120, "gen_ai.usage.output_tokens": 45, "gen_ai.prompt": "According to our policy, what is the refund period?", "gen_ai.completion": "You get a full 60-day refund with no questions asked." } },
+  { attributes: { "gen_ai.request.model": "gpt-4o", "gen_ai.usage.input_tokens": 80, "gen_ai.usage.output_tokens": 30, "gen_ai.prompt": "Cite the security whitepaper on data export.", "gen_ai.completion": "Data export is available to all users without extra steps." } },
+], null, 2);
+
+$("analyze").addEventListener("click", analyze);
+$("sample").addEventListener("click", () => { traceEl.value = SAMPLE; clearError(); });
+$("clear").addEventListener("click", () => { traceEl.value = ""; clearError(); $("results").style.display = "none"; $("empty").style.display = "block"; });
+  </script>
+</body>
+</html>
+

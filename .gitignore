@@ -32,3 +32,7 @@ Thumbs.db
 desktop.ini
 .idea/
 .vscode/
+
+# Cloudflare Wrangler / edge widget
+.wrangler/
+node_modules/
