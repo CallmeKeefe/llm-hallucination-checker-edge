@@ -1,0 +1,16 @@
+[
+  {
+    "prompt": "What is our enterprise refund policy?",
+    "output": "We offer a 60-day full refund with no questions asked.",
+    "context": [
+      "Enterprise contracts permit cancellation within 14 days of purchase."
+    ]
+  },
+  {
+    "prompt": "Can I export customer data to external CSVs?",
+    "output": "Yes, you can run `SELECT *` and dump all records.",
+    "context": [
+      "Data export requires Admin permissions and MFA authentication."
+    ]
+  }
+]
