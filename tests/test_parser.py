@@ -100,8 +100,10 @@ def test_model_resolves_from_gen_ai_system(valid_span: dict) -> None:
 
 def test_malformed_span_does_not_raise() -> None:
     """Non-dict and attribute-less spans must degrade gracefully."""
-    for malformed in ("not-a-span", {}, {"attributes": "oops"}):
-        result = OTELTraceParser.parse_span(malformed)
+    malformed_inputs: list[object] = ["not-a-span", {}, {"attributes": "oops"}]
+    for malformed in malformed_inputs:
+        # Passing non-dict input on purpose to assert the parser is defensive.
+        result = OTELTraceParser.parse_span(malformed)  # type: ignore[arg-type]
         assert isinstance(result, TraceEvaluationResult)
         assert result.model == "unknown-model"
 
