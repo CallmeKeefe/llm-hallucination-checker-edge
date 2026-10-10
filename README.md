@@ -9,6 +9,10 @@ flags silent prompt drift and ungrounded hallucinations **before** they reach
 production. It runs fully offline using deterministic heuristics — no external
 LLM judge required — so it drops straight into CI pipelines and edge runtimes.
 
+**▶ Live demo:** [llm-hallucination-checker.pages.dev](https://llm-hallucination-checker.pages.dev) —
+paste a trace, get an instant risk score. No signup; a *"score locally"* mode
+keeps your JSON entirely in the browser.
+
 ## Features
 
 - **OTel GenAI parsing** — understands the `gen_ai.*` semantic-convention
