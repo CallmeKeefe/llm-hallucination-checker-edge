@@ -143,6 +143,24 @@ npx wrangler pages deploy public
 Paste your deployed worker URL into the widget's *Edge API endpoint* field (it's
 remembered in `localStorage`), or just use local mode.
 
+## Limitations (read this before you trust it)
+
+Honest boundaries, so nobody has to discover them the hard way:
+
+- **Syntactic, not semantic.** The heuristics catch structural regressions —
+  blank completions, missing citations, broken instrumentation. They cannot
+  catch a fluent, confidently stated falsehood. Think *linter*, not *test
+  suite*: it flags what looks wrong, it can't verify what is true.
+- **Hand-tuned weights.** The `0.6 / 0.5 / 0.2` weights are ordered by
+  confidence, not learned from data. They live in one place
+  ([`core/parser.py`](core/parser.py)) and are mirrored verbatim in the edge
+  worker and the browser widget — re-tune freely, in one spot.
+- **Citation detection is deliberately naive.** "Grounding requested" = the
+  prompt contains a cue such as *according to* or *cite*; "citation present" =
+  the completion contains `[` or `]`. It does not parse reference styles.
+- **No persistence, by design.** Neither the widget nor the Worker stores
+  traces — there is no history or dashboard, and that's the point.
+
 ## License
 
 Distributed under the MIT License. See [LICENSE](LICENSE) for details.
