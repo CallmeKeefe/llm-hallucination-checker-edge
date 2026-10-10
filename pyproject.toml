@@ -46,9 +46,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/KeefeBuild/llm-hallucination-checker-edge"
-Repository = "https://github.com/KeefeBuild/llm-hallucination-checker-edge"
-Issues = "https://github.com/KeefeBuild/llm-hallucination-checker-edge/issues"
+Homepage = "https://github.com/CallmeKeefe/llm-hallucination-checker-edge"
+Repository = "https://github.com/CallmeKeefe/llm-hallucination-checker-edge"
+Issues = "https://github.com/CallmeKeefe/llm-hallucination-checker-edge/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["core"]
