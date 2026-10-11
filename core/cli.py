@@ -19,8 +19,8 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 from core.parser import OTELTraceParser, TraceEvaluationResult
 
@@ -43,7 +43,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "trace",
         help=(
-            "Path to a JSON trace export: a list of spans, a {\"spans\": [...]} "
+            'Path to a JSON trace export: a list of spans, a {"spans": [...]} '
             "object, or a single span."
         ),
     )

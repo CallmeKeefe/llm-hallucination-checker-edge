@@ -23,9 +23,7 @@ SAMPLE_TRACES: list[dict[str, Any]] = [
     {
         "prompt": "Can I export customer data to external CSVs?",
         "output": "Yes, you can run `SELECT *` and dump all records.",
-        "context": [
-            "Data export requires Admin permissions and MFA authentication."
-        ],
+        "context": ["Data export requires Admin permissions and MFA authentication."],
     },
 ]
 
