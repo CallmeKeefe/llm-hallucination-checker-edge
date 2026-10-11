@@ -1,0 +1,13 @@
+[
+  {
+    "name": "chat gpt-4o",
+    "attributes": {
+      "gen_ai.system": "openai",
+      "gen_ai.request.model": "gpt-4o",
+      "gen_ai.usage.input_tokens": 96,
+      "gen_ai.usage.output_tokens": 0,
+      "gen_ai.prompt": "What is the refund period for annual plans?",
+      "gen_ai.completion": ""
+    }
+  }
+]

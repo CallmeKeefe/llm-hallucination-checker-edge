@@ -101,6 +101,35 @@ Useful flags:
   into CI to fail a build when hallucination risk climbs. Exit codes are
   `0` (clean / below threshold), `1` (threshold exceeded), and `2` (bad input).
 
+## Try the example traces
+
+The [`examples/`](examples) folder contains three sample trace files, one per
+outcome, so you can see the checker in action without instrumenting an app:
+
+| File | What it demonstrates | Expected risk |
+| :--- | :--- | :--- |
+| `clean_trace.json` | Grounded prompt, completion includes a `[...]` citation | `0.00` (passes) |
+| `missing_citation_trace.json` | Prompt asks "according to our policy", completion has no citation | `0.50` |
+| `empty_completion_trace.json` | Completion is blank | `0.60` |
+
+Run them from the repo root:
+
+```bash
+python -m core examples/clean_trace.json
+python -m core examples/missing_citation_trace.json
+python -m core examples/empty_completion_trace.json
+```
+
+To check that a file trips your CI gate, add `--threshold`. The
+`empty_completion_trace.json` case exits with code `1` at a `0.5` threshold:
+
+```bash
+python -m core examples/empty_completion_trace.json --threshold 0.5
+echo $?   # 1
+```
+
+Use `--json` to see the full structured result for any of them.
+
 ## How it works
 
 Each span is scored against three deterministic heuristics. The final
