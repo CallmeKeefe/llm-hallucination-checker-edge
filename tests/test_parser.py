@@ -173,4 +173,3 @@ def test_evaluate_trace_file_missing_path_raises(tmp_path: Path) -> None:
     """A non-existent trace file should raise FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
         OTELTraceParser.evaluate_trace_file(tmp_path / "does-not-exist.json")
-

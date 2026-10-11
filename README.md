@@ -55,7 +55,7 @@ span = {
 
 result = OTELTraceParser.parse_span(span)
 print(result.hallucination_risk_score)  # 0.0 — grounded and complete
-print(result.warnings)                  # ()  — nothing flagged
+print(result.warnings)  # ()  — nothing flagged
 ```
 
 Evaluate an entire trace export (a JSON list, a `{"spans": [...]}` object, or a

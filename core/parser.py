@@ -12,11 +12,11 @@ from __future__ import annotations
 import json
 import warnings
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-__all__ = ["TraceEvaluationResult", "OTELTraceParser"]
+__all__ = ["OTELTraceParser", "TraceEvaluationResult"]
 
 
 class TraceEvaluationResult(BaseModel):
@@ -149,9 +149,7 @@ class OTELTraceParser:
         )
 
     @classmethod
-    def evaluate_trace_file(
-        cls, filepath: Union[str, Path]
-    ) -> list[TraceEvaluationResult]:
+    def evaluate_trace_file(cls, filepath: str | Path) -> list[TraceEvaluationResult]:
         """Load a trace export from disk and evaluate every span it contains.
 
         Accepts three common export shapes:
@@ -184,4 +182,3 @@ class OTELTraceParser:
         if isinstance(data, dict) and isinstance(data.get("spans"), list):
             return data["spans"]
         return [data]
-
