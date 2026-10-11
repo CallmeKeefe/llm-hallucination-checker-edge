@@ -23,6 +23,7 @@ const WEIGHT_UNKNOWN_MODEL = 0.2;
 // these cues) yet the completion contains no citation markers.
 const GROUNDING_CUES = ["according to", "as per", "per the", "cite"];
 const CITATION_MARKERS = ["[", "]"];
+const CITATION_PATTERNS = [/\[\d+\]/, /\([A-Z][a-z]+(?: et al\.)?,? \d{4}\)/];
 
 // Attribute keys following the OpenTelemetry GenAI semantic conventions.
 const MODEL_KEYS = ["gen_ai.request.model", "gen_ai.system"];
@@ -98,9 +99,12 @@ function parseSpan(span) {
 
   // Heuristic 2: prompt requests grounding, but completion lacks citations.
   const lowered_prompt = prompt.toLowerCase();
+  const hasCitation =
+    CITATION_MARKERS.some((marker) => completion.includes(marker)) ||
+    CITATION_PATTERNS.some((pattern) => pattern.test(completion));
   if (
     GROUNDING_CUES.some((cue) => lowered_prompt.includes(cue)) &&
-    !CITATION_MARKERS.some((marker) => completion.includes(marker))
+    !hasCitation
   ) {
     risk_score += WEIGHT_MISSING_CITATION;
     warnings.push(

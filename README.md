@@ -187,9 +187,10 @@ Honest boundaries, so nobody has to discover them the hard way:
   confidence, not learned from data. They live in one place
   ([`core/parser.py`](core/parser.py)) and are mirrored verbatim in the edge
   worker and the browser widget — re-tune freely, in one spot.
-- **Citation detection is deliberately naive.** "Grounding requested" = the
+- **Citation detection covers common bracket and parenthetical styles.** "Grounding requested" = the
   prompt contains a cue such as *according to* or *cite*; "citation present" =
-  the completion contains `[` or `]`. It does not parse reference styles.
+  the completion contains bracket markers (`[` or `]`, including numbered footnotes like `[1]`)
+  or parenthetical author-year citations like `(Smith, 2024)`. It does not perform deep bibliographic parsing.
 - **No persistence, by design.** Neither the widget nor the Worker stores
   traces — there is no history or dashboard, and that's the point.
 
