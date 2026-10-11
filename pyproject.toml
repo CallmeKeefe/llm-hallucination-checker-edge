@@ -50,6 +50,9 @@ Homepage = "https://github.com/CallmeKeefe/llm-hallucination-checker-edge"
 Repository = "https://github.com/CallmeKeefe/llm-hallucination-checker-edge"
 Issues = "https://github.com/CallmeKeefe/llm-hallucination-checker-edge/issues"
 
+[project.scripts]
+llm-hallucination-checker = "core.cli:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["core"]
 

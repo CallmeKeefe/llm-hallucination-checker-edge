@@ -69,6 +69,38 @@ for r in results:
     print(f"{r.model}: risk={r.hallucination_risk_score:.2f} warnings={r.warnings}")
 ```
 
+## Command-line interface
+
+Score a whole trace file straight from the terminal — handy for CI gates and
+local triage. It runs the **same** offline heuristics as the library, Worker, and
+widget, so a span scores identically everywhere.
+
+```bash
+# run as a module (no install needed)
+python -m core traces.json
+
+# or install the console command
+pip install .
+llm-hallucination-checker traces.json
+```
+
+Example output:
+
+```
+ #   RISK  MODEL                WARNINGS
+--------------------------------------------
+ 1   0.50  gpt-4o               Prompt requested grounding references, but no citation markers were found in the completion.
+--------------------------------------------
+spans=1  mean=0.50  worst=0.50
+```
+
+Useful flags:
+
+- `--json` — emit machine-readable JSON (one object per span) instead of a table.
+- `--threshold T` — exit with code `1` if **any** span scores `>= T`. Wire this
+  into CI to fail a build when hallucination risk climbs. Exit codes are
+  `0` (clean / below threshold), `1` (threshold exceeded), and `2` (bad input).
+
 ## How it works
 
 Each span is scored against three deterministic heuristics. The final
@@ -164,4 +196,11 @@ Honest boundaries, so nobody has to discover them the hard way:
 ## License
 
 Distributed under the MIT License. See [LICENSE](LICENSE) for details.
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for
+the development setup, the three-way parity rule, and the pull-request process.
+Thanks to everyone in [CONTRIBUTORS.md](CONTRIBUTORS.md).
+
 
