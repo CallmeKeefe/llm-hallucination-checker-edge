@@ -33,5 +33,30 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install ".[dev]"
 
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
+
       - name: Run test suite with coverage
         run: pytest --cov=core --cov-report=term-missing
+
+  worker-test:
+    name: worker-test (node${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["20", "22"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Run Worker test suite
+        working-directory: worker
+        run: npm test

@@ -30,8 +30,10 @@ def _build_test_case():
         input="What is the enterprise SLA guarantee?",
         actual_output="We guarantee 99.999% uptime for all tiers.",
         retrieval_context=[
-            "Enterprise tier guarantees 99.9% uptime, "
-            "while Standard tier guarantees 99.0%."
+            (
+                "Enterprise tier guarantees 99.9% uptime, "
+                "while Standard tier guarantees 99.0%."
+            )
         ],
     )
 
