@@ -160,8 +160,15 @@ pytest
 pytest --cov=core --cov-report=term-missing
 ```
 
-Continuous integration runs the full suite on Python 3.10, 3.11, and 3.12 for
-every push and pull request to `main`.
+The edge Worker has its own dependency-free test suite (Node.js 20+):
+
+```bash
+cd worker
+npm test
+```
+
+Continuous integration runs the Python suite on Python 3.10, 3.11, and 3.12 and
+the Worker suite on Node 20 and 22 for every push and pull request to `main`.
 
 ## Web diagnostic widget
 

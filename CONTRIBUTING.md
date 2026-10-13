@@ -47,8 +47,8 @@ the browser.
 - **Report a bug** — see [Reporting bugs](#reporting-bugs).
 - **Improve documentation** — the README, docstrings, or this guide.
 - **Add a heuristic or feature** — see [Adding or changing a heuristic](#adding-or-changing-a-heuristic).
-- **Write tests** — especially for the edge Worker, which currently has no
-  automated test harness.
+- **Write tests** — Python tests live in `tests/`; the edge Worker's tests live
+  in `worker/index.test.js`.
 - **Pick up an open issue** — issues tagged
   [`good first issue`](https://github.com/CallmeKeefe/llm-hallucination-checker-edge/labels/good%20first%20issue)
   are a great place to start.
@@ -91,6 +91,17 @@ CI runs the suite on **Python 3.10, 3.11, and 3.12** for every push and pull
 request to `main`. Please make sure the suite is green locally before opening a
 PR.
 
+The edge Worker has its own test suite, built on Node's built-in test runner
+(no dependencies to install; **Node.js 20+** required):
+
+```bash
+cd worker
+npm test
+```
+
+CI runs it on Node 20 and 22. If you change a heuristic, update **both** test
+suites so the Python core and the Worker stay in parity.
+
 You can also exercise the CLI end-to-end:
 
 ```bash
@@ -125,7 +136,7 @@ or modify a heuristic:
 2. Mirror the exact same logic in [`worker/index.js`](worker/index.js).
 3. Mirror it again in the local scorer inside [`public/index.html`](public/index.html).
 4. Add a unit test in [`tests/test_parser.py`](tests/test_parser.py) covering
-   the new behaviour (and update the clamp test if the max sum changes).
+   the new behaviour (and update the clamp test if the max sum changes), and a matching test in [worker/index.test.js](worker/index.test.js).
 5. Update the **heuristics table** in the README ("How it works") and, if
    relevant, the "Limitations" section.
 6. Note the change in your pull request description.

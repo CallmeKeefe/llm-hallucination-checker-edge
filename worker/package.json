@@ -1,0 +1,12 @@
+{
+    "name": "llm-hallucination-checker-edge-api",
+    "private": true,
+    "type": "module",
+    "description": "Cloudflare Worker edge API for the LLM Hallucination Checker.",
+    "scripts": {
+        "test": "node --test"
+    },
+    "engines": {
+        "node": ">=20"
+    }
+}
