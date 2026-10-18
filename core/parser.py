@@ -70,7 +70,7 @@ class OTELTraceParser:
     # A completion is considered "ungrounded" when the prompt asks for a source
     # (via one of these cues) yet the completion contains no citation markers.
     _GROUNDING_CUES: tuple[str, ...] = ("according to", "as per", "per the", "cite")
-    _CITATION_MARKERS: tuple[str, ...] = ("[", "]")
+   _CITATION_MARKERS: tuple[str, ...] = ("[", "]", "(", ")")
 
     @staticmethod
     def _coerce_int(value: Any) -> int:
