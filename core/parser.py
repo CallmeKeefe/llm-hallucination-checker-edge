@@ -13,7 +13,8 @@ import json
 import re
 import warnings
 from pathlib import Path
-from typing import Any, Pattern, Union
+from re import Pattern
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -134,7 +135,10 @@ class OTELTraceParser:
         has_citation = any(
             marker in completion for marker in cls._CITATION_MARKERS
         ) or any(pattern.search(completion) for pattern in cls._CITATION_PATTERNS)
-        if any(cue in lowered_prompt for cue in cls._GROUNDING_CUES) and not has_citation:
+        if (
+            any(cue in lowered_prompt for cue in cls._GROUNDING_CUES)
+            and not has_citation
+        ):
             risk_score += cls._WEIGHT_MISSING_CITATION
             detected_warnings.append(
                 "Prompt requested grounding references, but no citation markers "

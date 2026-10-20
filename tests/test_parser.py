@@ -177,8 +177,12 @@ def test_evaluate_trace_file_missing_path_raises(tmp_path: Path) -> None:
 
 def test_parenthetical_citation_is_recognized(valid_span: dict) -> None:
     """Parenthetical author-year citations such as '(Smith, 2024)' should be recognized."""
-    valid_span["attributes"]["gen_ai.prompt"] = "According to recent studies, explain the trend."
-    valid_span["attributes"]["gen_ai.completion"] = "The trend has accelerated significantly (Smith, 2024)."
+    valid_span["attributes"]["gen_ai.prompt"] = (
+        "According to recent studies, explain the trend."
+    )
+    valid_span["attributes"]["gen_ai.completion"] = (
+        "The trend has accelerated significantly (Smith, 2024)."
+    )
 
     result = OTELTraceParser.parse_span(valid_span)
 
@@ -189,10 +193,11 @@ def test_parenthetical_citation_is_recognized(valid_span: dict) -> None:
 def test_numbered_footnote_citation_is_recognized(valid_span: dict) -> None:
     """Numbered footnote markers such as '[1]' should be recognized."""
     valid_span["attributes"]["gen_ai.prompt"] = "Cite the source for the finding."
-    valid_span["attributes"]["gen_ai.completion"] = "Carbon emissions decreased by 5% [1]."
+    valid_span["attributes"]["gen_ai.completion"] = (
+        "Carbon emissions decreased by 5% [1]."
+    )
 
     result = OTELTraceParser.parse_span(valid_span)
 
     assert result.hallucination_risk_score == 0.0
     assert result.warnings == ()
-
