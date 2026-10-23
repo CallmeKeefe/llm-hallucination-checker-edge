@@ -10,8 +10,10 @@ so it can run deterministically inside CI pipelines and at the edge.
 from __future__ import annotations
 
 import json
+import re
 import warnings
 from pathlib import Path
+from re import Pattern
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -71,6 +73,10 @@ class OTELTraceParser:
     # (via one of these cues) yet the completion contains no citation markers.
     _GROUNDING_CUES: tuple[str, ...] = ("according to", "as per", "per the", "cite")
     _CITATION_MARKERS: tuple[str, ...] = ("[", "]")
+    _CITATION_PATTERNS: tuple[Pattern[str], ...] = (
+        re.compile(r"\[\d+\]"),
+        re.compile(r"\([A-Z][a-z]+(?: et al\.)?,? \d{4}\)"),
+    )
 
     @staticmethod
     def _coerce_int(value: Any) -> int:
@@ -126,8 +132,12 @@ class OTELTraceParser:
 
         # Heuristic 2: prompt requests grounding, but completion lacks citations.
         lowered_prompt = prompt.lower()
-        if any(cue in lowered_prompt for cue in cls._GROUNDING_CUES) and not any(
+        has_citation = any(
             marker in completion for marker in cls._CITATION_MARKERS
+        ) or any(pattern.search(completion) for pattern in cls._CITATION_PATTERNS)
+        if (
+            any(cue in lowered_prompt for cue in cls._GROUNDING_CUES)
+            and not has_citation
         ):
             risk_score += cls._WEIGHT_MISSING_CITATION
             detected_warnings.append(

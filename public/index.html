@@ -133,6 +133,7 @@ const WEIGHT_MISSING_CITATION = 0.5;
 const WEIGHT_UNKNOWN_MODEL = 0.2;
 const GROUNDING_CUES = ["according to", "as per", "per the", "cite"];
 const CITATION_MARKERS = ["[", "]"];
+const CITATION_PATTERNS = [/\[\d+\]/, /\([A-Z][a-z]+(?: et al\.)?,? \d{4}\)/];
 const MODEL_KEYS = ["gen_ai.request.model", "gen_ai.system"];
 
 const $ = (id) => document.getElementById(id);
@@ -169,7 +170,8 @@ function parseSpan(span) {
     warnings.push("Empty completion detected in trace span.");
   }
   const lp = prompt.toLowerCase();
-  if (GROUNDING_CUES.some((c) => lp.includes(c)) && !CITATION_MARKERS.some((m) => completion.includes(m))) {
+  const hasCitation = CITATION_MARKERS.some((m) => completion.includes(m)) || CITATION_PATTERNS.some((p) => p.test(completion));
+  if (GROUNDING_CUES.some((c) => lp.includes(c)) && !hasCitation) {
     risk += WEIGHT_MISSING_CITATION;
     warnings.push("Prompt requested grounding references, but no citation markers were found in the completion.");
   }
