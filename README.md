@@ -4,21 +4,26 @@
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A lightweight, OpenTelemetry-native utility that parses GenAI trace spans and
-flags silent prompt drift and ungrounded hallucinations **before** they reach
-production. It runs fully offline using deterministic heuristics — no external
-LLM judge required — so it drops straight into CI pipelines and edge runtimes.
+A lightweight, OpenTelemetry-native diagnostic utility that parses GenAI trace spans
+and reports structural signals such as empty completions, missing citation markers,
+and missing model metadata. It uses deterministic heuristics and does not require an
+external LLM judge. **It does not verify factual correctness and cannot reliably
+detect hallucinations.** Treat its output as a triage signal, not a truth score or
+a release gate on its own.
 
 **▶ Live demo:** [llm-hallucination-checker.pages.dev](https://llm-hallucination-checker.pages.dev) —
-paste a trace, get an instant risk score. No signup; a *"score locally"* mode
-keeps your JSON entirely in the browser.
+paste a trace and inspect heuristic diagnostics. The *"score locally"* mode is
+designed to process the trace in the browser without calling the Worker. Do not
+paste secrets, personal data, customer prompts, or confidential traces into the
+hosted demo; review the deployed site's privacy and logging configuration first.
 
 ## Features
 
 - **OTel GenAI parsing** — understands the `gen_ai.*` semantic-convention
   attributes, including the transitional `gen_ai.system` namespace.
-- **Heuristic risk scoring** — combines empty-completion, missing-citation, and
-  instrumentation-gap signals into a single clamped `0.0–1.0` risk score.
+- **Heuristic diagnostics** — combines empty-completion, missing-citation-marker,
+  and instrumentation-gap signals into a clamped `0.0–1.0` diagnostic score. The
+  number is not a calibrated probability of hallucination or factual error.
 - **Defensive by design** — malformed or partial spans never raise; they
   degrade to safe, validated defaults.
 - **Typed & validated** — built on [Pydantic v2](https://docs.pydantic.dev/)
@@ -132,10 +137,13 @@ Use `--json` to see the full structured result for any of them.
 
 ## How it works
 
-Each span is scored against three deterministic heuristics. The final
-`hallucination_risk_score` is the sum of triggered weights, clamped to `1.0`.
+Each span is evaluated against three deterministic heuristics. The API retains the
+legacy field name `hallucination_risk_score`; interpret it only as a heuristic
+structural-diagnostic score. It is not a probability, confidence interval, or
+measurement of factual truth. The final value is the sum of triggered weights,
+clamped to `1.0`.
 
-| Heuristic | Trigger | Weight |
+| Diagnostic signal | Trigger | Contribution |
 | :--- | :--- | :--- |
 | Empty completion | `gen_ai.completion` is missing or blank | `0.6` |
 | Ungrounded citation | Prompt asks for a source (e.g. "according to") but the completion contains no `[`/`]` markers | `0.5` |
@@ -211,7 +219,7 @@ npx wrangler pages deploy public
 Paste your deployed worker URL into the widget's *Edge API endpoint* field (it's
 remembered in `localStorage`), or just use local mode.
 
-## Limitations (read this before you trust it)
+## Limitations and privacy (read before use)
 
 Honest boundaries, so nobody has to discover them the hard way:
 
@@ -227,8 +235,13 @@ Honest boundaries, so nobody has to discover them the hard way:
   prompt contains a cue such as *according to* or *cite*; "citation present" =
   the completion contains bracket markers (`[` or `]`, including numbered footnotes like `[1]`)
   or parenthetical author-year citations like `(Smith, 2024)`. It does not perform deep bibliographic parsing.
-- **No persistence, by design.** Neither the widget nor the Worker stores
-  traces — there is no history or dashboard, and that's the point.
+- **Privacy is deployment-dependent.** The local browser mode is designed not to
+  send trace JSON to the Worker. The hosted Worker implementation may not
+  intentionally persist traces, but platform logs, observability, request metadata,
+  or future code changes can affect data handling. Do not treat this README as a
+  no-retention guarantee. Inspect the deployed Worker, Cloudflare settings, and
+  applicable privacy notice before sending any non-public data. Prefer local mode
+  for sensitive traces.
 
 ## License
 
@@ -241,3 +254,8 @@ the development setup, the three-way parity rule, and the pull-request process.
 Thanks to everyone in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 
 
+
+
+## Responsible use
+
+This project is an experimental diagnostic aid. Do not use its score as the sole basis for rejecting model outputs, evaluating people, making consequential decisions, or claiming a model is safe or factual. Validate changes with labeled false-positive and false-negative cases, keep the Python/Worker/browser implementations in parity, and review trace handling before deploying it with real user data.
