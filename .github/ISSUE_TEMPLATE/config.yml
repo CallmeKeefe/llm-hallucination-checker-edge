@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Contribution guide
+    url: https://github.com/CallmeKeefe/llm-hallucination-checker-edge/blob/main/CONTRIBUTING.md
+    about: Read the setup, testing, parity, and pull request guidelines before contributing.
+  - name: Security reporting
+    url: https://github.com/CallmeKeefe/llm-hallucination-checker-edge/blob/main/CONTRIBUTING.md#reporting-security-issues
+    about: Please do not publish security vulnerabilities in public issues.
