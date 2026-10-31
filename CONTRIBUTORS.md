@@ -1,7 +1,6 @@
 # Contributors
 
-This project exists thanks to everyone who has contributed code, docs, tests,
-ideas, and bug reports. 💙
+This project benefits from people who contribute code, tests, documentation, examples, and reviews. Thank you for helping improve it.
 
 ## Maintainer
 
@@ -9,27 +8,21 @@ ideas, and bug reports. 💙
 | :--- | :--- | :--- |
 | Steven Keefe | [@CallmeKeefe](https://github.com/CallmeKeefe) | Creator & maintainer |
 
-## All contributors
+## Project contributors
 
-Thanks to the following people who have contributed to this project
-([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+The list below recognizes contributors whose pull requests have been merged.
 
-<!--
-This list is maintained by hand for now. When you land your first merged pull
-request, feel free to add yourself in a follow-up PR, or ask a maintainer to add
-you. Please keep entries alphabetical by GitHub handle and follow the format:
-
-| [Your Name](https://github.com/your-handle) | 💻 🐛 📖 |
--->
-
-_No external contributors yet — be the first! See [CONTRIBUTING.md](CONTRIBUTING.md) to get started._
+| GitHub | Contribution |
+| :--- | :--- |
+| [@AnushreeKasturi](https://github.com/AnushreeKasturi) | Example trace files and user documentation ([PR #7](https://github.com/CallmeKeefe/llm-hallucination-checker-edge/pull/7)) |
+| [@bonilokesh](https://github.com/bonilokesh) | Citation detection across Python, Worker, and browser; tests and documentation ([PR #6](https://github.com/CallmeKeefe/llm-hallucination-checker-edge/pull/6)) |
+| [@SakarPaisen](https://github.com/SakarPaisen) | Ruff linting, formatting, and CI improvements ([PR #8](https://github.com/CallmeKeefe/llm-hallucination-checker-edge/pull/8)) |
+| [@UMESH-KALE0777](https://github.com/UMESH-KALE0777) | Cloudflare Worker test harness and CI coverage ([PR #9](https://github.com/CallmeKeefe/llm-hallucination-checker-edge/pull/9)) |
 
 ## How to get listed
 
-Every kind of contribution counts — code, documentation, tests, bug reports,
-design, and review. Once you've contributed, you can add a row to the table
-above (or ask a maintainer to), linking to your GitHub profile and marking the
-type(s) of contribution using the
-[All Contributors](https://allcontributors.org/) emoji key, for example:
+Once your contribution is merged, add your GitHub handle and a concise description of what you contributed (or ask a maintainer to add it). Contributions to code, tests, documentation, examples, design, issue triage, and reviews are welcome.
 
-| [Jane Doe](https://github.com/janedoe) | 💻 🐛 📖 |
+Please keep the list alphabetized by GitHub handle. We only list contributions that can be linked to merged work; opening an issue or an unmerged pull request does not automatically add someone to this file.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, testing, the three-way parity rule, and the pull-request process.
