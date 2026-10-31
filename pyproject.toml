@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "llm-hallucination-checker-edge"
 version = "0.1.0"
-description = "A lightweight OTEL GenAI trace parser to catch prompt drift and hallucination risks."
+description = "Offline structural diagnostics for OpenTelemetry GenAI traces."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
